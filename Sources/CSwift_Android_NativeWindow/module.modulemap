@@ -1,0 +1,6 @@
+
+module CSwift_Android_NativeWindow [system] {
+  umbrella header "include/Bridging-Header.h"
+  link "android"
+  export *
+}
