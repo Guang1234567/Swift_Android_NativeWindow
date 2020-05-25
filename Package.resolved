@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Swift_FP",
+        "repositoryURL": "https://github.com/Guang1234567/Swift_FP.git",
+        "state": {
+          "branch": "master",
+          "revision": "ad3d25347dd36b120c1d7f96acf8660367941892",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}

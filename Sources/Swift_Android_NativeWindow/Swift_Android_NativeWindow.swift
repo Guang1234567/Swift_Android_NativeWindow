@@ -1,4 +1,5 @@
 import CSwift_Android_NativeWindow
+import Swift_FP
 
 public enum AndroidNativeWindowError: Error {
     case LOCK_FAILURE(statusCode: Int32)
@@ -189,19 +190,32 @@ public class AndroidNativeWindow: CustomStringConvertible, CustomDebugStringConv
 
     public func lock<R>(outBuffer: inout Buffer, inOutDirtyBounds: inout Rect?, _ block: (AndroidNativeWindow, inout Buffer, inout Rect?) throws -> R) throws -> R {
         let statusLock = lock(&outBuffer, &inOutDirtyBounds)
-        defer {
+        /*defer {
             if statusLock >= 0 {
                 let statusUnlock = unlockAndPost()
-                /*guard statusUnlock >= 0 else {
-                throw AndroidNativeWindowError.LOCK_FAILURE(statusCode: statusUnlock)
-            }*/
+                guard statusUnlock >= 0 else {
+                    throw AndroidNativeWindowError.UNLOCK_FAILURE(statusCode: statusUnlock)
+                }
             }
-        }
+        }*/
 
         guard statusLock >= 0 else {
             throw AndroidNativeWindowError.LOCK_FAILURE(statusCode: statusLock)
         }
 
-        return try block(self, &outBuffer, &inOutDirtyBounds)
+        let unlock = { (statusLock: Int32) throws -> Void in
+            if statusLock >= 0 {
+                let statusUnlock = self.unlockAndPost()
+                guard statusUnlock >= 0 else {
+                    throw AndroidNativeWindowError.UNLOCK_FAILURE(statusCode: statusUnlock)
+                }
+            }
+        }
+
+        return try Result {
+            try block(self, &outBuffer, &inOutDirtyBounds)
+        }.doFinally {
+            try unlock(statusLock)
+        }.get()
     }
 }
